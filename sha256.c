@@ -3,13 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct arr {
+    size_t len;
+    uint8_t messageBytes[];
+};
+
 // convert input message to byte arr
 uint8_t* toByteArr(char* message) {
     uint8_t *message_bytes = malloc(strlen(message));
 
     for (int i = 0; i < strlen(message) ; i++) {
         message_bytes[i] = (uint8_t) message[i];
-        //printf("%u\n", (uint8_t) message[i]);
     }
 
     return message_bytes;
@@ -22,7 +26,35 @@ void printByteArr(uint8_t arr[], size_t len) {
     printf("\n");
 }
 
-//int[] pad(int* message[]) {}
+// function takes in byte arr, checks its len, and padds
+// it so it is a multiple of 512 bits (512/8 = 64 bytes)
+struct arr* pad(uint8_t* rawMessage, size_t len) {
+    uint8_t bytesToPad = 64 - len;
+    bytesToPad = bytesToPad % 64;
+    unsigned long paddedLen = len + bytesToPad;
+
+    printf("raw message size in bytes %zu\n", len);
+    printf("bytes to pad: %hhu\n", bytesToPad);
+    
+    // len variable + arr length in bytes * 8 bits
+    struct arr* pPaddedBytes = malloc(sizeof(size_t) + paddedLen * 8);
+
+    pPaddedBytes->len = paddedLen;
+
+    for (int i = 0; i < len; i++) {
+        pPaddedBytes->messageBytes[i] = rawMessage[i];
+    }
+
+    pPaddedBytes->messageBytes[len] = 0x80; // 1000 0000
+
+    if (bytesToPad > 1) {
+        for (int i = len+1; i < paddedLen; i++) {
+            pPaddedBytes->messageBytes[i] = 0;
+        }
+    }
+
+    return pPaddedBytes;
+}
 
 // divide into block[]
 
@@ -55,9 +87,13 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     //printf("%s\n", argv[1]);
-    uint8_t* pMessageBytes = toByteArr(argv[1]);
+    uint8_t *pMessageBytes = toByteArr(argv[1]);
+
     printByteArr(pMessageBytes, strlen(argv[1]));
 
+    struct arr *pPaddedBytes = pad(pMessageBytes, strlen(argv[1])); 
+
+    printByteArr(pPaddedBytes->messageBytes, pPaddedBytes->len);
 
     // free(pMessageBytes);
     // printf("%s", pMessageBytes);
