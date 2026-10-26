@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// input to byte arr
-//uint8_t* 
+// convert input message to byte arr
 uint8_t* toByteArr(char* message) {
     uint8_t *message_bytes = malloc(strlen(message));
 
@@ -16,10 +15,11 @@ uint8_t* toByteArr(char* message) {
     return message_bytes;
 }
 
-void printByteArr(uint8_t* arr[]) {
-    for (int i = 0; i < sizeof(*arr) / 8; i++) {
-        printf("a");
+void printByteArr(uint8_t arr[], size_t len) {
+    for (int i = 0; i < len; i++) {
+        printf("%hhu ", arr[i]);
     }
+    printf("\n");
 }
 
 //int[] pad(int* message[]) {}
@@ -50,7 +50,16 @@ void printByteArr(uint8_t* arr[]) {
 // base 16 encode & return
 
 int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        printf("pass the message to hash, dumbass\n");
+        return 0;
+    }
     //printf("%s\n", argv[1]);
-    printByteArr(toByteArr(argv[1]));
+    uint8_t* pMessageBytes = toByteArr(argv[1]);
+    printByteArr(pMessageBytes, strlen(argv[1]));
+
+
+    // free(pMessageBytes);
+    // printf("%s", pMessageBytes);
     return 0;
 }
