@@ -37,29 +37,22 @@ struct arr* pad(uint8_t* rawMessage, size_t len) {
     if (bytesToPad < 9) bytesToPad += 64;
     unsigned long paddedLen = len + bytesToPad;
 
-    printf("raw message size in bytes %zu\n", len);
-    printf("bytes to pad: %hhu\n", bytesToPad);
-    
     // len variable + arr length in bytes * 8 bits
     struct arr* pPaddedBytes = malloc(sizeof(size_t) + paddedLen * 8);
 
     pPaddedBytes->len = paddedLen;
 
-    // copy bytes from raw message
-    for (int i = 0; i < len; i++) {
-        pPaddedBytes->messageBytes[i] = rawMessage[i];
-    }
-
-    // add 0x80 byte to mark end of message
-    pPaddedBytes->messageBytes[len] = 0x80; // 1000 0000
-
-    // populate remaining bytes with zeros
-    if (bytesToPad > 1) {
-        for (int i = len+1; i < paddedLen; i++) {
+    // copy bytes from raw message and fill rest with zeros
+    for (int i = 0; i < paddedLen; i++) {
+        if (i < len) {
+            pPaddedBytes->messageBytes[i] = rawMessage[i];
+        }
+        else {
             pPaddedBytes->messageBytes[i] = 0;
         }
     }
-    
+    // add 0x80 byte to mark end of message
+    pPaddedBytes->messageBytes[len] = 0x80; // 1000 0000 
     // todo adequately make size 8 bytes instead of 1
     pPaddedBytes->messageBytes[paddedLen-1] = len;
 
