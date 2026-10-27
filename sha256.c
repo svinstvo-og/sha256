@@ -19,9 +19,16 @@ uint8_t* toByteArr(char* message) {
     return message_bytes;
 }
 
-void printByteArr(uint8_t arr[], size_t len) {
+void printArr(uint8_t arr[], size_t len) {
     for (int i = 0; i < len; i++) {
         printf("%hhu ", arr[i]);
+    }
+    printf("\n");
+}
+
+void printUint32Arr(uint32_t arr[], size_t len) {
+    for (int i = 0; i < len; i++) {
+        printf("%u ", arr[i]);
     }
     printf("\n");
 }
@@ -60,6 +67,22 @@ struct arr* pad(uint8_t* rawMessage, size_t len) {
 }
 
 // divide into block[]
+// so problem with the blocks is that we use big_endians for this, which means we have to pack 4 bytes into one block.
+uint32_t* toChunkArr(uint8_t* message) {
+    uint32_t* pChunkArr = malloc(512);
+    uint8_t messageIndex = 0;
+
+    for (int i = 0; i < 16; i++) {
+        // pack 4 bytes to 1 big endian
+        pChunkArr[i] = message[messageIndex] << 24 | 
+                       message[messageIndex+1] << 16 | 
+                       message[messageIndex+2] << 8 | 
+                       message[messageIndex+3];
+        messageIndex += 4;
+    }
+
+    return pChunkArr;
+}
 
 // sigma 0-1
 
@@ -95,12 +118,14 @@ int main(int argc, char* argv[]) {
     }
     //printf("%s\n", argv[1]);
     uint8_t *pMessageBytes = toByteArr(argv[1]);
-
-    printByteArr(pMessageBytes, strlen(argv[1]));
+    printArr(pMessageBytes, strlen(argv[1]));
 
     struct arr *pPaddedBytes = pad(pMessageBytes, strlen(argv[1])); 
+    printArr(pPaddedBytes->messageBytes, pPaddedBytes->len);
 
-    printByteArr(pPaddedBytes->messageBytes, pPaddedBytes->len);
+    uint32_t *pMessageChunkArr = toChunkArr(pPaddedBytes->messageBytes);
+    printUint32Arr(pMessageChunkArr, 16);
+
 
     // free(pMessageBytes);
     // printf("%s", pMessageBytes);
