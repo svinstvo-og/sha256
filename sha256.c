@@ -29,8 +29,12 @@ void printByteArr(uint8_t arr[], size_t len) {
 // function takes in byte arr, checks its len, and padds
 // it so it is a multiple of 512 bits (512/8 = 64 bytes)
 struct arr* pad(uint8_t* rawMessage, size_t len) {
+    // find how much bytes we need to append to pad message
     uint8_t bytesToPad = 64 - len;
     bytesToPad = bytesToPad % 64;
+
+    // if we cant fit message size (8 bytes + 1 0x80 byte), round up padding
+    if (bytesToPad < 9) bytesToPad += 64;
     unsigned long paddedLen = len + bytesToPad;
 
     printf("raw message size in bytes %zu\n", len);
@@ -41,17 +45,23 @@ struct arr* pad(uint8_t* rawMessage, size_t len) {
 
     pPaddedBytes->len = paddedLen;
 
+    // copy bytes from raw message
     for (int i = 0; i < len; i++) {
         pPaddedBytes->messageBytes[i] = rawMessage[i];
     }
 
+    // add 0x80 byte to mark end of message
     pPaddedBytes->messageBytes[len] = 0x80; // 1000 0000
 
+    // populate remaining bytes with zeros
     if (bytesToPad > 1) {
         for (int i = len+1; i < paddedLen; i++) {
             pPaddedBytes->messageBytes[i] = 0;
         }
     }
+    
+    // todo adequately make size 8 bytes instead of 1
+    pPaddedBytes->messageBytes[paddedLen-1] = len;
 
     return pPaddedBytes;
 }
@@ -84,6 +94,10 @@ struct arr* pad(uint8_t* rawMessage, size_t len) {
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         printf("pass the message to hash, dumbass\n");
+        return 0;
+    }
+    if (strlen(argv[1]) > 255) {
+        printf("for now message is capped to 255 chars :(\n");
         return 0;
     }
     //printf("%s\n", argv[1]);
