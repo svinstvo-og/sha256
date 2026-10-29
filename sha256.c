@@ -107,10 +107,22 @@ uint32_t sigma1(uint32_t x) {
     // calc initial hash values H0-H7
     // calc K0-K63
 
-// assign words
+// initiate word arr
+uint32_t* initWords(uint32_t* chunks) {
+    uint32_t* words = malloc(32 * 64); // 64 words of 32 bits = 2048
+    for (int i = 0; i < 64; i++) {
+        if (i < 16) words[i] = chunks[i];
+        else words[i] = 0;
+    }
+    return words;
+}
 
 // caclulate remaining words
-// word calculation function
+void calculateWords(uint32_t* words) {
+    for (int i = 16; i < 64; i++) {
+        words[i] = sigma1(words[i-2]) + words[i-7] + sigma0(words[i-15]) + words[i-16];
+    }
+}
 
 // for int 0-63:
     // set working variables & process iteration
@@ -137,8 +149,7 @@ int main(int argc, char* argv[]) {
     uint32_t *pMessageChunkArr = toChunkArr(pPaddedBytes->messageBytes);
     printUint32Arr(pMessageChunkArr, 16);
 
+    uint32_t *pWordArr = 
 
-    // free(pMessageBytes);
-    // printf("%s", pMessageBytes);
     return 0;
 }
