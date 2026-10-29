@@ -88,7 +88,7 @@ uint32_t* toChunkArr(uint8_t* message) {
     return pChunkArr;
 }
 
-// sigma 0-1
+// sigmas 0-1
 uint32_t sigma0(uint32_t x) {
     return rightRotate(x, 7) ^ rightRotate(x, 18) ^ (x >> 3);
 }
@@ -97,15 +97,33 @@ uint32_t sigma1(uint32_t x) {
     return rightRotate(x, 17) ^ rightRotate(x, 19) ^ (x >> 10);
 }
 
-// Sigma 0-1
+// Sigmas 0-1
+uint32_t bigSigma0(uint32_t x) {
+    return rightRotate(x, 2) ^ rightRotate(x, 13) ^ rightRotate(x, 22);
+}
 
-// choice 
+uint32_t bigSigma1(uint32_t x) {
+    return rightRotate(x, 6) ^ rightRotate(x, 11) ^ rightRotate(x, 25);
+}
+
+// choice
+uint32_t choice(uint32_t x, uint32_t y, uint32_t z) {
+    return (x & y) ^ (~x & z);
+}
 
 // majority
+uint32_t majority(uint32_t x, uint32_t y, uint32_t z) {
+    return (x & y) ^ (x & z) ^ (y & z);
+}
 
 // calc constants
     // calc initial hash values H0-H7
     // calc K0-K63
+// uint32_t* initConstants() {
+//     uint32_t* k = malloc(32 * 8);
+
+//     k[0] = 
+// }
 
 // initiate word arr
 uint32_t* initWords(uint32_t* chunks) {
@@ -149,7 +167,7 @@ int main(int argc, char* argv[]) {
     uint32_t *pMessageChunkArr = toChunkArr(pPaddedBytes->messageBytes);
     printUint32Arr(pMessageChunkArr, 16);
 
-    uint32_t *pWordArr = 
+    // uint32_t *pWordArr = 
 
     return 0;
 }
