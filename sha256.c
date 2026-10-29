@@ -33,6 +33,10 @@ void printUint32Arr(uint32_t arr[], size_t len) {
     printf("\n");
 }
 
+uint32_t rightRotate (uint32_t x, uint8_t n) {
+    return (x >> n) | (32 - n);
+}
+
 // function takes in byte arr, checks its len, and padds
 // it so it is a multiple of 512 bits (512/8 = 64 bytes)
 struct arr* pad(uint8_t* rawMessage, size_t len) {
@@ -85,6 +89,13 @@ uint32_t* toChunkArr(uint8_t* message) {
 }
 
 // sigma 0-1
+uint32_t sigma0(uint32_t x) {
+    return rightRotate(x, 7) ^ rightRotate(x, 18) ^ (x >> 3);
+}
+
+uint32_t sigma1(uint32_t x) {
+    return rightRotate(x, 17) ^ rightRotate(x, 19) ^ (x >> 10);
+}
 
 // Sigma 0-1
 
